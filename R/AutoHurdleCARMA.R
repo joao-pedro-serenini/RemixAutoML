@@ -1018,7 +1018,8 @@ AutoHurdleCARMA <- function(data,
 
   # Run AutoCatBoostRegression and return list of ml objects ----
   if(tolower(AlgoType) == "catboost") {
-    TestModel <- RemixAutoML::AutoCatBoostHurdleModel(
+    source("../RemixAutoML/R/AutoCatBoostHurdleModel.R")
+    TestModel <- AutoCatBoostHurdleModel(
 
       # GPU or CPU and the number of available GPUs
       task_type = TaskType,
@@ -1069,7 +1070,6 @@ AutoHurdleCARMA <- function(data,
   } else if(tolower(AlgoType) == "xgboost") {
     1
   }
-
 
   # Return model object for when TrainOnFull is FALSE ----
   if(!TrainOnFull) return(TestModel)
@@ -1144,7 +1144,8 @@ AutoHurdleCARMA <- function(data,
         IDcols <- eval(TargetColumnName)
 
         # Score model ----
-        Preds <- RemixAutoML::AutoHurdleScoring(
+        source("../RemixAutoML/R/AutoHurdleScoring.R")
+        Preds <- AutoHurdleScoring(
           TestData = data.table::copy(Step1SCore),
           Path = NULL,
           ModelID = "ModelTest",
