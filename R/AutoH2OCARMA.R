@@ -139,6 +139,7 @@
 #' @return Returns a data.table of original series and forecasts, the catboost model objects (everything returned from AutoCatBoostRegression()), a time series forecast plot, and transformation info if you set TargetTransformation to TRUE. The time series forecast plot will plot your single series or aggregate your data to a single series and create a plot from that.
 #' @export
 AutoH2OCARMA <- function(AlgoType = "drf",
+                         ExcludeAlgos = NULL,
                          data,
                          NonNegativePred = FALSE,
                          TrainOnFull = FALSE,
@@ -1062,7 +1063,7 @@ AutoH2OCARMA <- function(AlgoType = "drf",
       # Compute management
       MaxMem = MaxMem,
       NThreads = NThreads,
-      H2OShutdown = TRUE,
+      H2OShutdown = FALSE,
       IfSaveModel = "mojo",
 
       # Model evaluation:
@@ -1189,7 +1190,7 @@ AutoH2OCARMA <- function(AlgoType = "drf",
       NThreads = NThreads,
       H2OShutdown = FALSE,
       IfSaveModel = "mojo",
-      Alpha = NULL,
+      # Alpha = NULL,
       Distribution = "gaussian",
 
       # Model evaluation:
@@ -1236,7 +1237,7 @@ AutoH2OCARMA <- function(AlgoType = "drf",
       Methods = NULL,
 
       # Model args
-      Trees = NTrees,
+      # Trees = NTrees,
       GridTune = GridTune,
       MaxModelsInGrid = ModelCount)
 
@@ -1298,6 +1299,7 @@ AutoH2OCARMA <- function(AlgoType = "drf",
 
       # i = 1 Score Model With Group Variables----
       if(DebugMode) print("# i = 1 Score Model With Group Variables----")
+      source("../RemixAutoML/R/AutoH2oMLScoring.R")
       Preds <- AutoH2OMLScoring(
         ScoringData = Step1SCore,
         ModelObject = Model,
@@ -1337,7 +1339,8 @@ AutoH2OCARMA <- function(AlgoType = "drf",
         data.table::setnames(UpdateData, "FutureDateData", eval(DateColumnName))
       } else {
         if(NonNegativePred) Preds[, Predictions := data.table::fifelse(Predictions < 0.5, 0, Predictions)]
-        UpdateData <- cbind(FutureDateData[1L:N],Preds)
+        Preds[[eval(DateColumnName)]] <- NULL
+        UpdateData <- cbind(FutureDateData[1L:N], Preds)
         data.table::setnames(UpdateData,c("V1"),c(eval(DateColumnName)))
       }
 
